@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbonoz Solarpilot</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        
+        <div class="form-container" id="formContainer">
+            <div class="main">
+                <input type="checkbox" id="chk" aria-hidden="true">
+                <div class="signup">
+                    <form id="configForm">
+                        <label for="chk" aria-hidden="true">Configuration</label>
+                        <input type="text" id="mqttIp" name="mqttIp" required placeholder="Enter MQTT Ip Address">
+                        <input type="text" id="username" name="username" required placeholder="Enter Username">
+                        <input type="password" id="password" name="password" required placeholder="Enter Password">
+                        <input type="text" id="inverterNumber" name="inverterNumber" required placeholder="Enter Inverter Number">
+                        <input type="text" id="batteryNumber" name="batteryNumber" required placeholder="Enter Battery Number">
+                        <button type="button" onclick="saveConfig()">Save</button>
+                    </form>
+                    <div class="login"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="welcome" style="display: none;">
+
+            <div class="container">
+                <div class="navigation">
+                    <div class="logo">
+                        <img src="logo.png" alt="">
+                        <h2>Carbonoz <span class="danger">Solarpilot</span></h2>
+                    </div>
+                    <ul>
+                        <li><a href="#" onclick="showContent('dashboard')">Dashboard</a></li>
+                        <li><a href="#" onclick="showContent('chart')">Chart</a></li>
+                        <li><a href="#" onclick="showContent('messages')">Messages</a></li>
+                      
+                        <li><a href="#" onclick="showContent('analytics')">Analytics</a></li>
+                        <li><a href="#" onclick="showContent('settings')">Settings</a></li>
+                    </ul>
+                    <div class="profile">
+                        <div class="leftside">
+                            <p id="welcomeMessage"></p>
+                            <p onclick="logout()"><img src="logout.png" alt=""></p>
+                        </div>
+                    </div>
+                    
+                </div>
+               
+               
+        
+                <div class="content" id="dashboard" style="display: none;">
+                    <div class="card-container">
+                        <div class="card">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706711783397&to=1706712083397&theme=light&panelId=1" width="450" height="400" frameborder="0"></iframe>
+                        </div>
+                    
+                        <div class="card">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706712312037&to=1706712612037&theme=light&panelId=2" width="450" height="400" frameborder="0"></iframe>
+                        </div>
+                    
+                    
+                    </div>
+                </div>
+        
+                <div class="content" id="messages" style="display: none;">
+                   
+                    <div class="message-container">
+                        <section>
+                            <h2>Messages</h2>
+                            <br>
+                            <br>
+                            <br>
+
+                            <h2 for="categoryFilter">Select Category:</h2>
+                            <select id="categoryFilter" name="categoryFilter">
+                                <option value="all">All</option>
+                                <option value="inverter1">Inverter 1</option>
+                                <option value="inverter2">Inverter 2</option>
+                                <option value="loadPower">Load Power</option>
+                                <option value="gridPower">Grid Power</option>
+                                <!-- Add more categories as needed -->
+                            </select>
+                    
+                            <h2>Incoming Messages</h2>
+                                <ul id="messageList" class="messageList">
+                                    <!-- Messages will be dynamically added here using JavaScript -->
+                                </ul>
+                        
+                         
+                        </section>
+                    </div>
+                        
+                </div>
+        
+                <div class="content" id="settings" style="display: none;">
+                    <section class="settings">
+                        <h2>Manage  settings here</h2>
+                      
+                        <!-- Add forms or UI elements for managing settings -->
+                        <form id="templateForm">
+                            <label for="templateUrl">Template URL:</label>
+                            <input type="text" id="templateUrl" name="templateUrl" placeholder="Enter Microsoft Blob URL">
+                            <button type="button" onclick="downloadTemplate()">Download</button>
+                        </form>
+                
+                        <form id="localSettingsForm">
+                            <!-- Add fields for managing local settings -->
+                            <!-- For example, updating local configurations -->
+                        </form>
+                
+                        <button type="button" onclick="uploadLocalSettings()">Upload Local</button>
+                    </section>
+                </div>
+        
+                <div class="content" id="chart" style="display: none;">
+                    <div class="card-container">
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706667191278&to=1706753591279&refresh=auto&theme=light&panelId=1" width="450" height="200" frameborder="0"></iframe>
+                        </div>
+                    
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706667244332&to=1706753644332&refresh=auto&theme=light&panelId=2" width="450" height="200" frameborder="0"></iframe>
+                        </div>
+                    
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706712466376&to=1706712766377&theme=light&panelId=3" width="450" height="200" frameborder="0"></iframe>
+                        </div>
+                    
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706667281917&to=1706753681917&refresh=auto&theme=light&panelId=3" width="450" height="200" frameborder="0"></iframe>
+                        </div>
+                    
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706667336427&to=1706753736428&refresh=auto&theme=light&panelId=4" width="450" height="200" frameborder="0"></iframe>
+                        </div>
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706667379029&to=1706753779029&refresh=auto&theme=light&panelId=5" width="450" height="200" frameborder="0"></iframe>
+                        </div>
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706667431450&to=1706753831451&refresh=auto&theme=light&panelId=6" width="450" height="200" frameborder="0"></iframe>
+                        </div>
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706732371449&to=1706753971449&theme=light&panelId=7" width="450" height="200" frameborder="0"></iframe>
+                        </div>
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706732412499&to=1706754012499&theme=light&panelId=8" width="450" height="200" frameborder="0"></iframe>
+                        </div>
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706732447949&to=1706754047949&theme=light&panelId=9" width="450" height="200" frameborder="0"></iframe>
+                        </div>
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706732491547&to=1706754091547&theme=light&panelId=10" width="450" height="200" frameborder="0"></iframe>
+                        </div>
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706732527278&to=1706754127278&theme=light&panelId=11" width="450" height="200" frameborder="0"></iframe>
+                        </div>
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706732564201&to=1706754164205&theme=light&panelId=12" width="450" height="200" frameborder="0"></iframe>
+                        </div>
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706732603223&to=1706754203225&theme=light&panelId=13" width="450" height="200" frameborder="0"></iframe>
+                        </div>
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706732646417&to=1706754246418&theme=light&panelId=14" width="450" height="200" frameborder="0"></iframe>
+                        </div>
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706732684144&to=1706754284144&theme=light&panelId=15" width="450" height="200" frameborder="0"></iframe>
+                        </div>
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706732764949&to=1706754364949&theme=light&panelId=16" width="450" height="200" frameborder="0"></iframe>
+                        </div>
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706732805025&to=1706754405025&theme=light&panelId=17" width="450" height="200" frameborder="0"></iframe>
+                        </div>
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706732844996&to=1706754444997&theme=light&panelId=18" width="450" height="200" frameborder="0"></iframe>
+                        </div>
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706732896585&to=1706754496585&theme=light&panelId=19" width="450" height="200" frameborder="0"></iframe>
+                        </div>
+                    
+                        <div class="cards">
+                            <iframe src="http://192.168.160.55:3000/d-solo/c99ded68-01d4-4a2f-bf6c-1fc8d5b5168c/solar-autopilot?orgId=1&from=1706732949803&to=1706754549803&theme=light&panelId=20" width="960" height="200" frameborder="0"></iframe>
+                        </div>
+                    
+                    </div>
+                </div>
+        
+                <div class="content" id="analytics" style="display: none;">
+                    <div class="recent-orders">
+                        <h2>Last 30 days</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Load</th>
+                                    <th>Solar PV</th>
+                                    <th>Battery
+                                        <br>
+                                        charged</th>
+                                    <th>Battery
+                                        <br>
+                                        discharged</th>
+                                        <th>Grid
+                                            <br>
+                                            used</th>
+                                            <th>Grid
+                                                <br>
+                                                exported</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Jan 18</td>
+                                    <td>10 KWH</td>
+                                    <td>12 KHW</td>
+                                    <td>0 KWH</td>
+                                    <td>9 KWH</td>
+                                    <td>4 KWH</td>
+                                    <td>0KWH</td>
+                                </tr>
+
+                                <tr>
+                                    <td>Jan 19</td>
+                                    <td>10 KWH</td>
+                                    <td>12 KHW</td>
+                                    <td>0 KWH</td>
+                                    <td>9 KWH</td>
+                                    <td>4 KWH</td>
+                                    <td>0KWH</td>
+                                </tr>
+                                <tr>
+                                    <td>Jan 20ß</td>
+                                    <td>10 KWH</td>
+                                    <td>12 KHW</td>
+                                    <td>0 KWH</td>
+                                    <td>9 KWH</td>
+                                    <td>4 KWH</td>
+                                    <td>0KWH</td>
+                                </tr>
+                                <tr>
+                                    <td>Jan 20ß</td>
+                                    <td>10 KWH</td>
+                                    <td>12 KHW</td>
+                                    <td>0 KWH</td>
+                                    <td>9 KWH</td>
+                                    <td>4 KWH</td>
+                                    <td>0KWH</td>
+                                </tr>
+                                <tr>
+                                    <td>Jan 20ß</td>
+                                    <td>10 KWH</td>
+                                    <td>12 KHW</td>
+                                    <td>0 KWH</td>
+                                    <td>9 KWH</td>
+                                    <td>4 KWH</td>
+                                    <td>0KWH</td>
+                                </tr>
+                                <tr>
+                                    <td>Jan 20ß</td>
+                                    <td>10 KWH</td>
+                                    <td>12 KHW</td>
+                                    <td>0 KWH</td>
+                                    <td>9 KWH</td>
+                                    <td>4 KWH</td>
+                                    <td>0KWH</td>
+                                </tr>
+                                <tr>
+                                    <td>Jan 20ß</td>
+                                    <td>10 KWH</td>
+                                    <td>12 KHW</td>
+                                    <td>0 KWH</td>
+                                    <td>9 KWH</td>
+                                    <td>4 KWH</td>
+                                    <td>0KWH</td>
+                                </tr>
+                                <tr>
+                                    <td>Jan 20ß</td>
+                                    <td>10 KWH</td>
+                                    <td>12 KHW</td>
+                                    <td>0 KWH</td>
+                                    <td>9 KWH</td>
+                                    <td>4 KWH</td>
+                                    <td>0KWH</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <a href="">Show All</a>
+                    </div>
+                </div>
+    
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if there's any saved configuration in localStorage
+        var savedConfig = localStorage.getItem('mqttConfig');
+        if (savedConfig) {
+            // If configuration exists, hide config form and display welcome message
+            var config = JSON.parse(savedConfig);
+            document.getElementById('formContainer').style.display = 'none';
+            document.getElementById('welcome').style.display = 'block';
+            document.getElementById('welcomeMessage').innerText = "Welcome, " + config.username + "!";
+        } else {
+            // If no configuration exists, show config form
+            document.getElementById('formContainer').style.display = 'block';
+            document.getElementById('welcome').style.display = 'none';
+        }
+
+        // Check if there's a selected content in localStorage
+        var selectedContent = localStorage.getItem('selectedContent');
+        if (selectedContent) {
+            // If selected content exists, show it
+            showContent(selectedContent);
+        } else {
+            // Default to dashboard if no content is selected
+            showContent('dashboard');
+        }
+
+        function saveConfig() {
+            // Get form input values
+            var mqttIp = document.getElementById('mqttIp').value;
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+            var inverterNumber = document.getElementById('inverterNumber').value;
+            var batteryNumber = document.getElementById('batteryNumber').value;
+
+            // Check if any field is empty
+            if (mqttIp === '' || username === '' || password === '' || inverterNumber === '' || batteryNumber === '') {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            // Create configuration object
+            var config = {
+                mqttIp: mqttIp,
+                username: username,
+                password: password,
+                inverterNumber: inverterNumber,
+                batteryNumber: batteryNumber
+            };
+
+            // Convert configuration object to JSON string
+            var jsonString = JSON.stringify(config);
+
+            // Save configuration to localStorage
+            localStorage.setItem('mqttConfig', jsonString);
+
+            // Hide form container
+            document.getElementById('formContainer').style.display = 'none';
+
+            // Hide config form and display welcome message
+            document.getElementById('welcome').style.display = 'block';
+
+            // Display welcome message with username
+            document.getElementById('welcomeMessage').innerText = "Welcome, " + username + "!";
+
+            // Show dashboard content upon login
+            showContent('dashboard');
+        }
+
+        function logout() {
+            // Clear localStorage
+            localStorage.removeItem('mqttConfig');
+            localStorage.removeItem('selectedContent');
+
+            // Show form container
+            document.getElementById('formContainer').style.display = 'block';
+
+            // Show config form and hide welcome message
+            document.getElementById('configForm').reset(); // Reset form fields
+            document.getElementById('welcome').style.display = 'none';
+        }
+
+        function showContent(contentId) {
+            var contents = document.getElementsByClassName('content');
+            for (var i = 0; i < contents.length; i++) {
+                contents[i].style.display = 'none';
+            }
+            document.getElementById(contentId).style.display = 'block';
+
+            // Store the selected content in localStorage only if it's different from the currently selected content
+            if (localStorage.getItem('selectedContent') !== contentId) {
+                localStorage.setItem('selectedContent', contentId);
+            }
+        }
+
+
+
+
+        // messages js start here
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Fetch and display initial messages
+            fetchMessages();
+
+            // Update messages when the category filter changes
+            document.getElementById('categoryFilter').addEventListener('change', fetchMessages);
+        });
+
+        function fetchMessages() {
+            const categoryFilter = document.getElementById('categoryFilter').value;
+
+            // Fetch messages from the server based on the selected category
+            fetch(`/api/messages?category=${categoryFilter}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Update the message list
+                    updateMessageList(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching messages:', error.message);
+                });
+        }
+
+        function updateMessageList(messages) {
+            const messageListElement = document.getElementById('messageList');
+            messageListElement.innerHTML = '';
+
+            if (messages.length === 0) {
+                const listItem = document.createElement('li');
+                listItem.textContent = 'No messages available.';
+                messageListElement.appendChild(listItem);
+            } else {
+                messages.forEach(message => {
+                    const listItem = document.createElement('li');
+                    const progress = document.createElement('progress');
+                    progress.value = extractVoltage(message);
+                    progress.max = 100;
+                    listItem.appendChild(progress);
+                    listItem.appendChild(document.createTextNode(message));
+                    messageListElement.appendChild(listItem);
+                });
+            }
+        }
+
+        function extractVoltage(message) {
+            // Extract voltage from the message (example: solar_assistant_DEYE/inverter_2/ac_output_frequency/state: 50.18)
+            const match = message.match(/state: (\d+(\.\d+)?)/);
+            return match ? parseFloat(match[1]) : 0;
+        }
+
+
+        // messages js end here
+
+
+
+         // settings js start here
+
+         // Import Azure Storage library
+const { BlobServiceClient } = require('@azure/storage-blob');
+
+// Initialize Azure Storage BlobServiceClient
+const blobServiceClient = BlobServiceClient.fromConnectionString('your_connection_string');
+const containerName = 'your_container_name';
+const containerClient = blobServiceClient.getContainerClient(containerName);
+
+// Function to download templates from Microsoft Blob URL
+async function downloadTemplate() {
+    const templateUrl = document.getElementById('templateUrl').value;
+
+    // Fetch the template from the provided URL (client-side)
+    const response = await fetch(templateUrl);
+
+    if (!response.ok) {
+        console.error(`Failed to fetch template. HTTP status: ${response.status}`);
+        return;
+    }
+
+    // Read the content of the template
+    const templateContent = await response.text();
+
+   // Function to download templates from Microsoft Blob URL
+async function downloadTemplate() {
+    const templateUrl = document.getElementById('templateUrl').value;
+
+    // Fetch the template from the provided URL (client-side)
+    const response = await fetch(templateUrl);
+
+    if (!response.ok) {
+        console.error(`Failed to fetch template. HTTP status: ${response.status}`);
+        return;
+    }
+
+    // Read the content of the template
+    const templateContent = await response.text();
+
+    // Update the UI with the downloaded template content
+    updateUIWithTemplate(templateContent);
+
+    // Alternatively, you can save the template content to local storage
+    saveTemplateToLocalStorage(templateContent);
+}
+
+// Function to update UI with downloaded template content
+function updateUIWithTemplate(templateContent) {
+    // Example: Update a div with the template content
+    const templateDiv = document.getElementById('templateDiv');
+    templateDiv.textContent = templateContent;
+
+    // Add more UI update logic as needed
+}
+
+// Function to save template content to local storage
+function saveTemplateToLocalStorage(templateContent) {
+    // Example: Save the template content to local storage
+    localStorage.setItem('templateContent', templateContent);
+
+    // Add more local storage handling as needed
+}
+
+}
+
+// Function to upload local settings to Microsoft Blob
+async function uploadLocalSettings() {
+    const localSettings = {}; // Replace with your local settings object or data
+
+    // Convert local settings to JSON string
+    const localSettingsJson = JSON.stringify(localSettings);
+
+    // Create a blob client
+    const blobClient = containerClient.getBlockBlobClient('local-settings.json');
+
+    try {
+        // Upload local settings to Azure Blob Storage
+        await blobClient.upload(localSettingsJson, localSettingsJson.length);
+        console.log('Local settings uploaded successfully.');
+    } catch (error) {
+        console.error('Error uploading local settings:', error.message);
+    }
+}
+
+
+
+
+        // settings js end here
+
+
+    </script>
+</body>
+</html>
