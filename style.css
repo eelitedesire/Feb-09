@@ -137,11 +137,13 @@ button:hover{
 }
 .navigation >ul >li{
     float: left;
-    width: 10%;
+    width: 15%;
     text-align: center;
+
 }
 .navigation li{
     border-radius: 1px solid #333;
+    text-align: center;
 
 }
 .navigation li:last-child{
@@ -180,7 +182,8 @@ text-decoration: none;
 }
 
 span{
-    color: red;
+    color: rgb(255, 111, 0);
+    font-weight: bold;
 }
 .profile{
     position: absolute;
@@ -383,6 +386,3 @@ transition: all 0.3s ease;
     transition: all 0.3s ease;
     }
 
-    .cards:last-child{
-        width: 83%;
-    }
