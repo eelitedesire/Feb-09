@@ -186,6 +186,42 @@
       background: white;
     }
          
+    button{
+    width: 100%;
+    height: 40px;
+    margin: 10px auto;
+    justify-content: center;
+    display: block;
+    color: #29334a;
+    font-size: 20px;
+    font-weight:bold;
+    margin-top: 18px;
+    outline: none;
+    border: none;
+    border-radius: 5px;
+    transition: .3s ease-in;
+    cursor: pointer;
+    box-shadow: 5px 20px 40px black;
+    transition: all 0.3s ease;
+}
+button:hover{
+  box-shadow: none;
+} 
+input,select{
+    width: 100%;
+    height: 30px;
+    background: transparent;
+    justify-content: center;
+    display: flex;
+    margin: 18px auto;
+    padding: 10px;
+    outline: none;
+    border-radius: 50px;
+    color: #000;
+
+}
+
+
      
     </style>
   </head>
@@ -481,7 +517,7 @@
                         <option value="Luxpower">Luxpower</option>
                       </select>
                       <br><br>
-                      <table id="automationSettings" border="1">
+                      <table id="automationSettings">
                         <tr>
                           <th>Day</th>
                           <th>Start Hour</th>
@@ -495,6 +531,9 @@
                       </table>
                       <button class="btnAdd" type="button" onclick="addRow()" disabled>Add New Setting</button>
                     </form>
+                  
+                          
+                          
                   
                   </div>
                 </div>
@@ -556,7 +595,7 @@
     </script>
 
 
-<!-- javscript for -->
+<!-- javscript for dashboard -->
 
 
 <script>
@@ -631,108 +670,39 @@
   setInterval(updateRealTimeData, 5000);
 </script>
 
-<!-- totals -->
-
-<script>
-  async function fetchDataFromInfluxDB() {
-const influxDBEndpoint = 'http://192.168.160.55:8086/query?db=homeassistant&u=admin&p=adminadmin';
-
-const queries = [
-   `SELECT last("value") AS "solarProduction" FROM "state" WHERE "topic" = 'solar_assistant_DEYE/total/pv_power/state'`,
-   `SELECT last("value") AS "batteryStateOfCharge" FROM "state" WHERE "topic" = 'solar_assistant_DEYE/total/battery_state_of_charge/state'`,
-   `SELECT last("value") AS "gridPower" FROM "state" WHERE "topic" = 'solar_assistant_DEYE/total/grid_power/state'`,
-   `SELECT last("value") AS "loadPower" FROM "state" WHERE "topic" = 'solar_assistant_DEYE/total/load_power/state'`,
-   `SELECT last("value") AS "gridVoltage" FROM "state" WHERE "topic" = 'solar_assistant_DEYE/total/grid_voltage/state'`
-];
-
-try {
-   const responses = await Promise.all(queries.map(async query => {
-       const response = await fetch(influxDBEndpoint, {
-           method: 'POST',
-           headers: {
-               'Content-Type': 'application/x-www-form-urlencoded'
-           },
-           body: `q=${encodeURIComponent(query)}`
-       });
-       return await response.json();
-   }));
-
-   const data = responses.map(response => response.results[0].series[0].values[0][1]);
-
-   return {
-       solarProduction: data[0],
-       batteryStateOfCharge: data[1],
-       gridPower: data[2],
-       loadPower: data[3],
-       gridVoltage: data[4]
-   };
-} catch (error) {
-   console.error('Error fetching data from InfluxDB:', error);
-   throw error;
-}
-}
-
-
-function updateRealTimeData() {
- fetchDataFromInfluxDB()
-   .then(data => {
-     updateCircleProgress('.solar-production', { value: data.solarProduction }, '#06ccff');
-     updateCircleProgress('.battery-state-of-charge', { value: data.batteryStateOfCharge }, '#ff00be');
-     updateCircleProgress('.grid-import', { value: data.gridPower }, '#fee800');
-     updateCircleProgress('.load-power', { value: data.loadPower }, '#00ffae');
-     updateCircleProgress('.grid-voltage', { value: data.gridVoltage }, '#ffa500');
-   })
-   .catch(error => console.error('Error updating real-time data:', error));
-}
-
-function updateCircleProgress(selector, data, color) {
- const progressElement = document.querySelector(`${selector} .progress`);
- const valueElement = document.querySelector(`${selector} .value`);
- const iconElement = document.querySelector(`${selector} .icon`);
-
- // Update the progress bar width and value
- progressElement.style.strokeDashoffset = 565.48 - (565.48 * (data.value / 1000));
- progressElement.style.stroke = color;
- iconElement.style.color = color;
- valueElement.textContent = `${data.value.toFixed(2)} ${selector === '.grid-voltage' ? 'V' : 'W'}`;
-}
-
-// Update the real-time data every 5 seconds
-setInterval(updateRealTimeData, 5000);
-</script>
 
 <!-- Messages -->
 
-
 <script>
   const influxDBEndpoint = 'http://192.168.160.55:8086/query?db=homeassistant&u=admin&p=adminadmin';
+  const messageLimit = 200; // Set the maximum number of messages to display
 
   async function fetchMessages() {
       const category = document.getElementById('category').value;
-      let query = `SELECT * FROM "state" WHERE "topic" =~ /solar_assistant_DEYE.*/ ORDER BY time DESC`;
+      let query = `SELECT * FROM "state" WHERE "topic" =~ /solar_assistant_DEYE.*/ ORDER BY time DESC LIMIT ${messageLimit}`;
 
       if (category) {
           switch (category) {
               case 'inverter_1':
-                  query = `SELECT * FROM "state" WHERE "topic" =~ /solar_assistant_DEYE\\/inverter_1.*/ ORDER BY time DESC`;
+                  query = `SELECT * FROM "state" WHERE "topic" =~ /solar_assistant_DEYE\\/inverter_1.*/ ORDER BY time DESC LIMIT ${messageLimit}`;
                   break;
               case 'inverter_2':
-                  query = `SELECT * FROM "state" WHERE "topic" =~ /solar_assistant_DEYE\\/inverter_2.*/ ORDER BY time DESC`;
+                  query = `SELECT * FROM "state" WHERE "topic" =~ /solar_assistant_DEYE\\/inverter_2.*/ ORDER BY time DESC LIMIT ${messageLimit}`;
                   break;
               case 'load_power':
-                  query = `SELECT * FROM "state" WHERE "topic" =~ /solar_assistant_DEYE.*\\/load_power.*/ ORDER BY time DESC`;
+                  query = `SELECT * FROM "state" WHERE "topic" =~ /solar_assistant_DEYE.*\\/load_power.*/ ORDER BY time DESC LIMIT ${messageLimit}`;
                   break;
               case 'grid_power':
-                  query = `SELECT * FROM "state" WHERE "topic" =~ /solar_assistant_DEYE.*\\/grid_power.*/ ORDER BY time DESC`;
+                  query = `SELECT * FROM "state" WHERE "topic" =~ /solar_assistant_DEYE.*\\/grid_power.*/ ORDER BY time DESC LIMIT ${messageLimit}`;
                   break;
               case 'battery_1':
-                  query = `SELECT * FROM "state" WHERE "topic" =~ /solar_assistant_DEYE\\/battery_1.*/ ORDER BY time DESC`;
+                  query = `SELECT * FROM "state" WHERE "topic" =~ /solar_assistant_DEYE\\/battery_1.*/ ORDER BY time DESC LIMIT ${messageLimit}`;
                   break;
               case 'battery_2':
-                  query = `SELECT * FROM "state" WHERE "topic" =~ /solar_assistant_DEYE\\/battery_2.*/ ORDER BY time DESC`;
+                  query = `SELECT * FROM "state" WHERE "topic" =~ /solar_assistant_DEYE\\/battery_2.*/ ORDER BY time DESC LIMIT ${messageLimit}`;
                   break;
               case 'battery_3':
-                  query = `SELECT * FROM "state" WHERE "topic" =~ /solar_assistant_DEYE\\/battery_3.*/ ORDER BY time DESC`;
+                  query = `SELECT * FROM "state" WHERE "topic" =~ /solar_assistant_DEYE\\/battery_3.*/ ORDER BY time DESC LIMIT ${messageLimit}`;
                   break;
           }
       }
@@ -769,7 +739,6 @@ setInterval(updateRealTimeData, 5000);
           table.innerHTML = `<caption>Messages</caption>
                           <thead>
                               <tr>
-                                  <th>Time</th>
                                   <th>Topic</th>
                                   <th>Value</th>
                               </tr>
@@ -778,11 +747,9 @@ setInterval(updateRealTimeData, 5000);
           const tbody = document.createElement('tbody');
           messages.forEach(message => {
               const tr = document.createElement('tr');
-              const timeIndex = columns.indexOf('time');
               const topicIndex = columns.indexOf('topic');
               const valueIndex = columns.indexOf('value');
-              tr.innerHTML = `<td>${new Date(message[timeIndex]).toLocaleString()}</td>
-                              <td>${message[topicIndex]}</td>
+              tr.innerHTML = `<td>${message[topicIndex]}</td>
                               <td>${message[valueIndex]}</td>`;
               tbody.appendChild(tr);
           });
@@ -796,5 +763,201 @@ setInterval(updateRealTimeData, 5000);
 
   document.addEventListener('DOMContentLoaded', fetchMessages);
 </script>
+
+
+<!-- autmation -->
+<script>
+  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+let automationSettings = {};
+
+function loadAutomationSettings(brand) {
+  const automationSettingsTable = document.getElementById('automationSettings');
+  const addRowButton = document.querySelector('#automationSettingsForm button');
+
+  // Clear existing automation settings
+  while (automationSettingsTable.rows.length > 1) {
+    automationSettingsTable.deleteRow(1);
+  }
+
+  if (brand) {
+    automationSettings = JSON.parse(localStorage.getItem(`automationSettings_${brand}`)) || {};
+    addRowButton.disabled = false;
+
+    // Load automation settings from localStorage
+    for (const day in automationSettings) {
+      for (const hour in automationSettings[day]) {
+        const settings = automationSettings[day][hour];
+        addRow(day, hour, settings);
+      }
+    }
+  } else {
+    automationSettings = {};
+    addRowButton.disabled = true;
+  }
+}
+
+function addRow(day, hour, settings) {
+  const table = document.getElementById('automationSettings');
+  const row = table.insertRow(-1);
+  const dayCell = row.insertCell(0);
+  const startHourCell = row.insertCell(1);
+  const endHourCell = row.insertCell(2);
+  const maxBatteryDischargePowerCell = row.insertCell(3);
+  const gridChargeEnabledCell = row.insertCell(4);
+  const generatorChargeEnabledCell = row.insertCell(5);
+  const dischargeVoltageCell = row.insertCell(6);
+  const actionsCell = row.insertCell(7);
+
+  dayCell.innerHTML = `<select>${daysOfWeek.map((dayName, index) => `<option value="${index}" ${index === day ? 'selected' : ''}>${dayName}</option>`).join('')}</select>`;
+  startHourCell.innerHTML = `<input type="number" min="0" max="23" placeholder="Start Hour" value="${hour !== undefined ? hour : ''}">`;
+  endHourCell.innerHTML = `<input type="number" min="0" max="23" placeholder="End Hour" value="${hour !== undefined ? hour : ''}">`;
+  maxBatteryDischargePowerCell.innerHTML = `<input type="text" placeholder="Max Battery Discharge Power" value="${settings ? settings.maxBatteryDischargePower : ''}">`;
+  gridChargeEnabledCell.innerHTML = `<select>
+    <option value="">Grid Charge Enabled</option>
+    <option value="true" ${settings && settings.gridChargeEnabled === true ? 'selected' : ''}>True</option>
+    <option value="false" ${settings && settings.gridChargeEnabled === false ? 'selected' : ''}>False</option>
+  </select>`;
+  generatorChargeEnabledCell.innerHTML = `<select>
+    <option value="">Generator Charge Enabled</option>
+    <option value="true" ${settings && settings.generatorChargeEnabled === true ? 'selected' : ''}>True</option>
+    <option value="false" ${settings && settings.generatorChargeEnabled === false ? 'selected' : ''}>False</option>
+  </select>`;
+  dischargeVoltageCell.innerHTML = `<input type="text" placeholder="Discharge Voltage" value="${settings ? settings.dischargeVoltage : ''}">`;
+  actionsCell.innerHTML = `
+    <button class="btn" onclick="saveSettings(this)">Save</button>
+    <button class="btn" onclick="deleteRow(this)">Delete</button>
+  `;
+}
+
+function saveSettings(button) {
+  const row = button.parentNode.parentNode;
+  const day = parseInt(row.cells[0].querySelector('select').value);
+  const startHour = parseInt(row.cells[1].querySelector('input').value);
+  const endHour = parseInt(row.cells[2].querySelector('input').value);
+  const maxBatteryDischargePower = row.cells[3].querySelector('input').value;
+  const gridChargeEnabled = row.cells[4].querySelector('select').value;
+  const generatorChargeEnabled = row.cells[5].querySelector('select').value;
+  const dischargeVoltage = row.cells[6].querySelector('input').value;
+
+  if (startHour >= 0 && startHour <= 23 && endHour >= 0 && endHour <= 23 && startHour <= endHour && maxBatteryDischargePower !== '' && gridChargeEnabled !== '' && generatorChargeEnabled !== '' && dischargeVoltage !== '') {
+    const brand = document.getElementById('inverterBrand').value;
+    if (!automationSettings[brand]) {
+      automationSettings[brand] = {};
+    }
+    if (!automationSettings[brand][day]) {
+      automationSettings[brand][day] = {};
+    }
+
+    for (let hour = startHour; hour <= endHour; hour++) {
+      automationSettings[brand][day][hour] = {
+        maxBatteryDischargePower,
+        gridChargeEnabled: gridChargeEnabled === 'true',
+        generatorChargeEnabled: generatorChargeEnabled === 'true',
+        dischargeVoltage
+      };
+    }
+
+    localStorage.setItem(`automationSettings_${brand}`, JSON.stringify(automationSettings[brand]));
+    alert('Automation settings updated successfully');
+  } else {
+    alert('Please fill in all fields correctly');
+  }
+}
+
+function deleteRow(button) {
+  const row = button.parentNode.parentNode;
+  const day = parseInt(row.cells[0].querySelector('select').value);
+  const startHour = parseInt(row.cells[1].querySelector('input').value);
+  const endHour = parseInt(row.cells[2].querySelector('input').value);
+
+  if (startHour >= 0 && startHour <= 23 && endHour >= 0 && endHour <= 23 && startHour <= endHour) {
+    const brand = document.getElementById('inverterBrand').value;
+    if (automationSettings[brand] && automationSettings[brand][day]) {
+      for (let hour = startHour; hour <= endHour; hour++) {
+        delete automationSettings[brand][day][hour];
+      }
+    }
+
+    localStorage.setItem(`automationSettings_${brand}`, JSON.stringify(automationSettings[brand]));
+    row.parentNode.removeChild(row);
+    alert('Automation settings deleted successfully');
+  } else {
+    alert('Invalid day or hour range');
+  }
+}
+
+</script>
+
+<!-- configuration -->
+
+<script>
+  let inverterSettings = {};
+ 
+ function saveInverterConfig() {
+   const brand = document.getElementById('inverterBrand').value;
+   if (brand) {
+     const inverterConfig = getInverterConfigFromForm();
+ 
+     fetch('/save-inverter-config', {
+       method: 'POST',
+       headers: {
+         'Content-Type': 'application/json'
+       },
+       body: JSON.stringify({ [brand]: inverterConfig })
+     })
+     .then(response => response.json())
+     .then(data => {
+       alert(data.message);
+       inverterSettings[brand] = inverterConfig; // Update the local inverterSettings object
+     })
+     .catch(error => alert(`Error: ${error}`));
+   } else {
+     alert('Please select an inverter brand');
+   }
+ }
+ 
+ function getInverterConfigFromForm() {
+   const workMode = document.getElementById('workMode').value;
+   const energyPattern = document.getElementById('energyPattern').value;
+   const maxSellPower = document.getElementById('maxSellPower').value;
+   const solarExportWhenBatteryFull = document.getElementById('solarExportWhenBatteryFull').value === 'true';
+ 
+   return {
+     workMode,
+     energyPattern,
+     maxSellPower,
+     solarExportWhenBatteryFull
+   };
+ }
+ 
+ function showInverterSettings(brand) {
+   const inverterSettingsContainer = document.getElementById('inverterSettingsContainer');
+   inverterSettingsContainer.innerHTML = '';
+ 
+   if (brand) {
+     inverterSettingsContainer.innerHTML = `
+       <div>
+         <label for="workMode">Work Mode:</label>
+         <input type="text" id="workMode" name="workMode" placeholder="Work Mode">
+       </div>
+       <div>
+         <label for="energyPattern">Energy Pattern:</label>
+         <input type="text" id="energyPattern" name="energyPattern" placeholder="Energy Pattern">
+       </div>
+       <div>
+         <label for="maxSellPower">Max Sell Power:</label>
+         <input type="text" id="maxSellPower" name="maxSellPower" placeholder="Sell Power">
+       </div>
+       <div>
+         <label for="solarExportWhenBatteryFull">Solar Export When Battery Full:</label>
+         <select id="solarExportWhenBatteryFull" name="solarExportWhenBatteryFull">
+           <option value="true">True</option>
+           <option value="false">False</option>
+         </select>
+       </div>
+     `;
+   }
+ }
+   </script>
   </body>
 </html>
